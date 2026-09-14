@@ -18,9 +18,12 @@
 
         <nav class="main-nav">
             <a href="{{ url('/') }}">Home</a>
-            @foreach(\App\Models\Section::orderBy('order_index')->take(6)->get() as $nav)
-                <a href="{{ route('section', $nav->slug) }}">{{ $nav->title }}</a>
-            @endforeach
+            <a href="{{ route('section', 'events') }}">Upcoming Events</a>
+            <a href="{{ route('section', 'projects') }}">Ongoing Town Projects</a>
+            <a href="{{ route('section', 'town-council') }}">Town Council Meeting</a>
+            <a href="{{ route('section', 'board-of-education') }}">Board of Education Meeting</a>
+            <a href="{{ route('section', 'sports') }}">Sports &amp; Registration</a>
+            <a href="{{ route('section', 'construction') }}">Construction &amp; Permits</a>
         </nav>
 
         <div class="auth-controls">
