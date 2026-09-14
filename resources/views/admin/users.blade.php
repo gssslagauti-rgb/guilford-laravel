@@ -1,1 +1,72 @@
-@extends("layouts.header")@section("title","Users")<div class="admin-wrap"><aside class="admin-sidebar"><div class="brand">Guilford Admin</div><nav><a href="{{ url("/admin") }}">Dashboard</a><a href="{{ url("/admin/users") }}" class="active">Users</a><a href="{{ url("/admin/content") }}">Content</a><a href="{{ url("/admin/sections") }}">Sections</a><a href="{{ url("/admin/subscribers") }}">Subscribers</a><a href="{{ url("/moderator") }}">Moderation</a><a href="{{ url("/") }}">← Site</a></nav></aside><div class="admin-main"><h1>Users</h1><h2>Create User</h2><form method="post" action="{{ route("admin.users.create") }}" class="grid-2">@csrf<input name="display_name" placeholder="Display Name" required><input type="email" name="email" placeholder="Email" required><input name="password" placeholder="Password (6+)" required minlength="6"><select name="role"><option value="user">User</option><option value="moderator">Moderator</option><option value="admin">Admin</option></select><button class="btn-primary" style="grid-column:1/-1">Create User</button></form><h2>All Users ({{ $users->count() }})</h2><table class="data-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead><tbody>@foreach($users as $u)<tr><td><strong>{{ $u->display_name }}</strong></td><td>{{ $u->email }}</td><td><span class="tag">{{ $u->role }}</span></td><td>@if($u->is_banned)<span class="tag warn">Banned</span>@else<span class="tag ok">Active</span>@endif</td><td>@if($u->id !== auth()->id())<form method="post" action="{{ route("admin.users.ban",$u) }}" style="display:inline">@csrf<button class="btn-sm">{{ $u->is_banned ? "Unban" : "Block" }}</button></form><form method="post" action="{{ route("admin.users.delete",$u) }}" style="display:inline" onsubmit="return confirm('Delete?')">@csrf @method("DELETE")<button class="btn-sm danger">Delete</button></form>@endif</td></tr>@endforeach</tbody></table></div></div>@include("layouts.footer")
+@extends('layouts.header')
+
+@section('title', 'Users')
+
+<div class="admin-wrap">
+    <aside class="admin-sidebar">
+        <div class="brand">Guilford Admin</div>
+        <nav>
+            <a href="{{ url('/admin') }}">Dashboard</a>
+            <a href="{{ url('/admin/users') }}" class="active">Users</a>
+            <a href="{{ url('/admin/content') }}">Content</a>
+            <a href="{{ url('/admin/sections') }}">Sections</a>
+            <a href="{{ url('/admin/subscribers') }}">Subscribers</a>
+            <a href="{{ url('/moderator') }}">Moderation</a>
+            <a href="{{ url('/') }}">← Site</a>
+        </nav>
+    </aside>
+
+    <div class="admin-main">
+        <h1>Users</h1>
+
+        <h2>Create User</h2>
+        <form method="post" action="{{ route('admin.users.create') }}" class="grid-2">
+            @csrf
+            <input name="display_name" placeholder="Display Name" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input name="password" placeholder="Password (6+)" required minlength="6">
+            <select name="role">
+                <option value="user">User</option>
+                <option value="moderator">Moderator</option>
+                <option value="admin">Admin</option>
+            </select>
+            <button class="btn-primary" style="grid-column:1/-1">Create User</button>
+        </form>
+
+        <h2>All Users ({{ $users->count() }})</h2>
+        <table class="data-table">
+            <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+                @foreach($users as $u)
+                    <tr>
+                        <td><strong>{{ $u->display_name }}</strong></td>
+                        <td>{{ $u->email }}</td>
+                        <td><span class="tag">{{ $u->role }}</span></td>
+                        <td>
+                            @if($u->is_banned)
+                                <span class="tag warn">Banned</span>
+                            @else
+                                <span class="tag ok">Active</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($u->id !== auth()->id())
+                                <form method="post" action="{{ route('admin.users.ban', $u) }}" style="display:inline">
+                                    @csrf
+                                    <button class="btn-sm">{{ $u->is_banned ? 'Unban' : 'Block' }}</button>
+                                </form>
+                                <form method="post" action="{{ route('admin.users.delete', $u) }}" style="display:inline" onsubmit="return confirm('Delete?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="btn-sm danger">Delete</button>
+                                </form>
+                            @endif
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@include('layouts.footer')
