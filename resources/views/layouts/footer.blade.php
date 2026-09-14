@@ -1,5 +1,3 @@
-</main>
-
 <section class="subscribe-banner">
     <div class="container">
         <h3>Stay in the loop</h3>

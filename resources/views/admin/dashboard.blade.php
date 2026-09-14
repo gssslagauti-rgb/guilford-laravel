@@ -1,46 +1,53 @@
-@extends('layouts.header')
+@extends('layouts.admin')
 
-@section('title', 'Admin')
+@section('title', 'Dashboard')
+@section('page-title', 'Dashboard')
 
-<div class="admin-wrap">
-    <aside class="admin-sidebar">
-        <div class="brand">Guilford Admin</div>
-        <nav>
-            <a href="{{ url('/admin') }}" class="active">Dashboard</a>
-            <a href="{{ url('/admin/users') }}">Users</a>
-            <a href="{{ url('/admin/content') }}">Content</a>
-            <a href="{{ url('/admin/sections') }}">Sections</a>
-            <a href="{{ url('/admin/subscribers') }}">Subscribers</a>
-            <a href="{{ url('/moderator') }}">Moderation</a>
-            <a href="{{ url('/') }}">← Site</a>
-        </nav>
-    </aside>
+@section('content')
 
-    <div class="admin-main">
-        <h1>Dashboard</h1>
-
-        <div class="stat-grid">
-            <div class="stat"><div class="stat-num">{{ $stats['users'] }}</div><div class="stat-label">Users</div></div>
-            <div class="stat"><div class="stat-num">{{ $stats['moderators'] }}</div><div class="stat-label">Moderators</div></div>
-            <div class="stat warn"><div class="stat-num">{{ $stats['pending'] }}</div><div class="stat-label">Pending</div></div>
-            <div class="stat"><div class="stat-num">{{ $stats['content'] }}</div><div class="stat-label">Content</div></div>
-            <div class="stat"><div class="stat-num">{{ $stats['subscribers'] }}</div><div class="stat-label">Subscribers</div></div>
-        </div>
-
-        <h2>Recent Content</h2>
-        <table class="data-table">
-            <thead><tr><th>Title</th><th>Section</th><th>Updated</th></tr></thead>
-            <tbody>
-                @foreach($recentContent as $c)
-                    <tr>
-                        <td><strong>{{ $c->title }}</strong></td>
-                        <td>{{ $c->section->title ?? '—' }}</td>
-                        <td>{{ $c->updated_at->diffForHumans() }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+<div class="stat-grid">
+    <div class="stat">
+        <div class="stat-num">{{ $stats['users'] }}</div>
+        <div class="stat-label">Total Users</div>
+    </div>
+    <div class="stat">
+        <div class="stat-num">{{ $stats['moderators'] }}</div>
+        <div class="stat-label">Moderators</div>
+    </div>
+    <div class="stat warn">
+        <div class="stat-num">{{ $stats['pending'] }}</div>
+        <div class="stat-label">Pending Review</div>
+    </div>
+    <div class="stat">
+        <div class="stat-num">{{ $stats['content'] }}</div>
+        <div class="stat-label">Published Items</div>
+    </div>
+    <div class="stat">
+        <div class="stat-num">{{ $stats['subscribers'] }}</div>
+        <div class="stat-label">Subscribers</div>
     </div>
 </div>
 
-@include('layouts.footer')
+<h2>Recent Content</h2>
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Section</th>
+            <th>Updated</th>
+        </tr>
+    </thead>
+    <tbody>
+        @forelse($recentContent as $c)
+            <tr>
+                <td><strong>{{ $c->title }}</strong></td>
+                <td><span class="tag">{{ $c->section->title ?? '—' }}</span></td>
+                <td>{{ $c->updated_at->diffForHumans() }}</td>
+            </tr>
+        @empty
+            <tr><td colspan="3" style="text-align:center;padding:30px;color:#6B6B6B">No content yet.</td></tr>
+        @endforelse
+    </tbody>
+</table>
+
+@endsection

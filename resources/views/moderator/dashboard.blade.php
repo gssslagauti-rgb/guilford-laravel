@@ -1,41 +1,33 @@
-@extends('layouts.header')
+@extends('layouts.moderator')
 
 @section('title', 'Moderator')
+@section('page-title', 'Pending Contributions')
 
-<div class="admin-wrap">
-    <aside class="admin-sidebar">
-        <div class="brand">Moderator</div>
-        <nav>
-            <a href="{{ url('/moderator') }}" class="active">Pending</a>
-            @if(auth()->user()->isAdmin())
-                <a href="{{ url('/admin') }}">Admin</a>
-            @endif
-            <a href="{{ url('/') }}">← Site</a>
-        </nav>
-    </aside>
+@section('content')
 
-    <div class="admin-main">
-        <h1>Pending ({{ $pending->count() }})</h1>
+@if($pending->isEmpty())
+    <p style="text-align:center;color:#6B6B6B;padding:60px;background:#fff;border-radius:12px;border:1px solid #E8E4DA">
+        All caught up! No pending contributions. 🎉
+    </p>
+@else
+    @foreach($pending as $p)
+        <div class="mod-card">
+            <div class="mod-head">
+                <span class="tag">{{ $p->section->title ?? $p->section->slug }}</span>
+                <span class="tag warn">{{ $p->contribution_type }}</span>
+                <span>by <strong>{{ $p->user->display_name ?? 'Anonymous' }}</strong> · {{ $p->created_at->diffForHumans() }}</span>
+            </div>
 
-        @if($pending->isEmpty())
-            <p>All caught up.</p>
-        @else
-            @foreach($pending as $p)
-                <div class="mod-card">
-                    <div class="mod-head">
-                        <span class="tag">{{ $p->section->slug }}</span>
-                    </div>
-                    <pre>{{ json_encode($p->content, JSON_PRETTY_PRINT) }}</pre>
-                    <form method="post" action="{{ route('moderator.moderate', $p) }}">
-                        @csrf
-                        <input name="note" placeholder="Note">
-                        <button name="action" value="approved" class="btn-sm ok">Approve</button>
-                        <button name="action" value="rejected" class="btn-sm danger">Reject</button>
-                    </form>
-                </div>
-            @endforeach
-        @endif
-    </div>
-</div>
+            <pre>{{ json_encode($p->content, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
 
-@include('layouts.footer')
+            <form method="post" action="{{ route('moderator.moderate', $p) }}" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                @csrf
+                <input name="note" placeholder="Optional moderator note" style="flex:1;min-width:200px;padding:10px 14px;border:1.5px solid #D8D4CA;border-radius:8px;font-family:inherit">
+                <button name="action" value="approved" class="btn-sm ok">✓ Approve</button>
+                <button name="action" value="rejected" class="btn-sm danger">✕ Reject</button>
+            </form>
+        </div>
+    @endforeach
+@endif
+
+@endsection

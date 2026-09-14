@@ -1,32 +1,35 @@
-@extends('layouts.header')
+@extends('layouts.admin')
 
 @section('title', 'Subscribers')
+@section('page-title', 'Newsletter Subscribers')
 
-<div class="admin-wrap">
-    <aside class="admin-sidebar">
-        <div class="brand">Guilford Admin</div>
-        <nav>
-            <a href="{{ url('/admin') }}">Dashboard</a>
-            <a href="{{ url('/admin/users') }}">Users</a>
-            <a href="{{ url('/admin/content') }}">Content</a>
-            <a href="{{ url('/admin/sections') }}">Sections</a>
-            <a href="{{ url('/admin/subscribers') }}" class="active">Subscribers</a>
-            <a href="{{ url('/moderator') }}">Moderation</a>
-            <a href="{{ url('/') }}">← Site</a>
-        </nav>
-    </aside>
+@section('content')
 
-    <div class="admin-main">
-        <h1>Subscribers ({{ $subscribers->count() }})</h1>
-        <table class="data-table">
-            <thead><tr><th>#</th><th>Email</th></tr></thead>
-            <tbody>
-                @foreach($subscribers as $i => $s)
-                    <tr><td>{{ $i+1 }}</td><td>{{ $s->email }}</td></tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-</div>
+<h2>Subscribers ({{ $subscribers->count() }})</h2>
 
-@include('layouts.footer')
+@if($subscribers->isEmpty())
+    <p style="text-align:center;color:#6B6B6B;padding:40px;background:#fff;border-radius:12px;border:1px solid #E8E4DA">
+        No subscribers yet.
+    </p>
+@else
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Email</th>
+                <th>Subscribed</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($subscribers as $i => $s)
+                <tr>
+                    <td>{{ $i + 1 }}</td>
+                    <td>{{ $s->email }}</td>
+                    <td>{{ $s->created_at ?? '—' }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+@endif
+
+@endsection

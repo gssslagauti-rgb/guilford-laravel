@@ -1,7 +1,8 @@
-@extends('layouts.header')
+﻿@extends('layouts.header')
 
 @section('title', 'Guilford Hub')
 
+@section('content')
 <section class="hero">
     <div class="hero-bg"></div>
     <div class="container hero-content">
@@ -16,7 +17,6 @@
 </section>
 
 <div class="container main-content">
-
     <section class="stats-bar">
         <div class="stats-bar-inner">
             <div class="stats-item">
@@ -47,7 +47,7 @@
             @continue
         @endif
 
-        <section class="section" id="{{ $slug }}">
+        <section class="section">
             <div class="section-header">
                 <div class="section-title-group">
                     <h2>{{ $data['section']->title }}</h2>
@@ -55,12 +55,34 @@
                         <p class="section-desc">{{ $data['section']->description }}</p>
                     @endif
                 </div>
-                <a href="{{ route('section', $slug) }}" class="btn-view-all">View all →</a>
+
+                <div class="section-actions">
+                    <a href="{{ route('section', $slug) }}" class="btn-view-all">View all →</a>
+                    <button type="button"
+                            class="btn-add"
+                            data-contribute="{{ $slug }}"
+                            title="Add to {{ $data['section']->title }}"
+                            @guest onclick="openAuthModal(event)" @endguest>+</button>
+                </div>
             </div>
 
             <div class="card-grid">
                 @foreach($data['items']->take(6) as $item)
-                    @php $m = $item->metadata; @endphp
+                    @php
+                        $m = $item->metadata;
+                        $editPayload = json_encode([
+                            'id' => $item->id,
+                            'section' => $slug,
+                            'title' => $item->title,
+                            'body' => $item->body,
+                            'date' => $m['date'] ?? '',
+                            'location' => $m['location'] ?? '',
+                            'season' => $m['season'] ?? '',
+                            'registration' => $m['registration'] ?? '',
+                            'category' => $m['category'] ?? '',
+                            'bullets' => $m['bullets'] ?? [],
+                        ]);
+                    @endphp
                     <article class="card">
                         @if(!empty($m['category']))
                             <span class="card-tag">{{ $m['category'] }}</span>
@@ -73,6 +95,14 @@
                         @else
                             <span class="card-tag tag-navy">{{ ucfirst($slug) }}</span>
                         @endif
+
+                        @auth
+                            <button type="button"
+                                    class="btn-edit"
+                                    data-edit="{{ $editPayload }}"
+                                    title="Edit this item">✎</button>
+                        
+                        @endauth
 
                         <h3>{{ $item->title }}</h3>
 
@@ -113,7 +143,18 @@
         @endphp
 
         @if($items->isNotEmpty())
-            @php $m = $items->first()->metadata; @endphp
+            @php
+                $m = $items->first()->metadata;
+                $editPayload = json_encode([
+                    'id' => $items->first()->id,
+                    'section' => $slug,
+                    'title' => $items->first()->title,
+                    'body' => $items->first()->body,
+                    'date' => $m['date'] ?? '',
+                    'location' => $m['location'] ?? '',
+                    'bullets' => $m['bullets'] ?? [],
+                ]);
+            @endphp
             <section class="section">
                 <div class="section-header">
                     <div class="section-title-group">
@@ -121,6 +162,16 @@
                         @if(!empty($m['date']))
                             <p class="section-desc">{{ $m['date'] }}@if(!empty($m['location'])) · {{ $m['location'] }}@endif</p>
                         @endif
+                    </div>
+                    <div class="section-actions">
+                        @auth
+                            <button type="button" class="btn-edit" data-edit="{{ $editPayload }}" title="Edit meeting notes">✎</button>
+                         @endauth
+                        <button type="button"
+                                class="btn-add"
+                                data-contribute="{{ $slug }}"
+                                title="Add meeting notes"
+                                @guest onclick="openAuthModal(event)" @endguest>+</button>
                     </div>
                 </div>
 
@@ -134,7 +185,6 @@
             </section>
         @endif
     @endforeach
-
 </div>
+@endsection
 
-@include('layouts.footer')

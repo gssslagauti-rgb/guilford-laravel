@@ -1,56 +1,56 @@
-@extends('layouts.header')
+@extends('layouts.admin')
 
 @section('title', 'Content')
+@section('page-title', 'Content Management')
 
-<div class="admin-wrap">
-    <aside class="admin-sidebar">
-        <div class="brand">Guilford Admin</div>
-        <nav>
-            <a href="{{ url('/admin') }}">Dashboard</a>
-            <a href="{{ url('/admin/users') }}">Users</a>
-            <a href="{{ url('/admin/content') }}" class="active">Content</a>
-            <a href="{{ url('/admin/sections') }}">Sections</a>
-            <a href="{{ url('/admin/subscribers') }}">Subscribers</a>
-            <a href="{{ url('/moderator') }}">Moderation</a>
-            <a href="{{ url('/') }}">← Site</a>
-        </nav>
-    </aside>
+@section('content')
 
-    <div class="admin-main">
-        <h1>Content</h1>
+<h2>Add New Content</h2>
+<form method="post" action="{{ route('admin.content.create') }}">
+    @csrf
+    <select name="section_id" required>
+        @foreach($sections as $s)
+            <option value="{{ $s->id }}">{{ $s->title }}</option>
+        @endforeach
+    </select>
+    <input name="title" placeholder="Title" required>
+    <textarea name="body" placeholder="Body / description" rows="3"></textarea>
+    <input name="date" placeholder="Date (e.g. Oct 12, 2026)">
+    <input name="location" placeholder="Location">
+    <input name="category" placeholder="Category">
+    <button class="btn-primary">Create Content</button>
+</form>
 
-        <form method="post" action="{{ route('admin.content.create') }}">
-            @csrf
-            <select name="section_id" required>
-                @foreach($sections as $s)
-                    <option value="{{ $s->id }}">{{ $s->title }}</option>
-                @endforeach
-            </select>
-            <input name="title" placeholder="Title" required>
-            <textarea name="body" placeholder="Body" rows="3"></textarea>
-            <button class="btn-primary">Create</button>
-        </form>
+<h2>All Content ({{ $items->count() }})</h2>
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Section</th>
+            <th>Contributor</th>
+            <th>Updated</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($items as $c)
+            <tr>
+                <td>{{ $c->id }}</td>
+                <td><strong>{{ $c->title }}</strong></td>
+                <td><span class="tag">{{ $c->section->title ?? '—' }}</span></td>
+                <td>{{ $c->contributor_name ?? '—' }}</td>
+                <td>{{ $c->updated_at->diffForHumans() }}</td>
+                <td>
+                    <form method="post" action="{{ route('admin.content.delete', $c) }}" style="display:inline" onsubmit="return confirm('Delete this item?')">
+                        @csrf
+                        @method('DELETE')
+                        <button class="btn-sm danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        @endforeach
+    </tbody>
+</table>
 
-        <h2>All Content ({{ $items->count() }})</h2>
-        <table class="data-table">
-            <thead><tr><th>Title</th><th>Section</th><th>Actions</th></tr></thead>
-            <tbody>
-                @foreach($items as $c)
-                    <tr>
-                        <td><strong>{{ $c->title }}</strong></td>
-                        <td>{{ $c->section->title ?? '—' }}</td>
-                        <td>
-                            <form method="post" action="{{ route('admin.content.delete', $c) }}" style="display:inline" onsubmit="return confirm('Delete?')">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn-sm danger">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-</div>
-
-@include('layouts.footer')
+@endsection

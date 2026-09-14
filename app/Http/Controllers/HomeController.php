@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Content;
 use App\Models\Section;
-
+use Anthropic\Client;
 class HomeController extends Controller
 {
     public function index()
@@ -34,5 +34,23 @@ class HomeController extends Controller
             ->get();
 
         return view('section', compact('section', 'items'));
+    }
+    public function testClaude()
+    {
+        // The client automatically reads the key from your .env file
+        $client = new Client();
+
+        $message = $client->messages->create(
+            maxTokens: 256,
+            messages: [
+                ['role' => 'user', 'content' => 'Say hello from the Guilford Hub!']
+            ],
+            model: 'claude-sonnet-4-5-20250929', // Use a current model ID
+        );
+
+        // The response text is in the first content block
+        $reply = $message->content[0]->text;
+
+        return response()->json(['claude_reply' => $reply]);
     }
 }

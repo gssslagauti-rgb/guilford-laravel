@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ContributeController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ModeratorController;
+use App\Http\Controllers\FacebookController;
 use Illuminate\Support\Facades\Route;
 Route::get("/", [HomeController::class,"index"])->name("home");
 Route::get("/section/{slug}", [HomeController::class,"section"])->name("section");
@@ -14,6 +15,7 @@ Route::get("/register", [AuthController::class,"showRegister"])->name("register"
 Route::post("/register", [AuthController::class,"register"]);
 Route::post("/logout", [AuthController::class,"logout"])->name("logout");
 Route::middleware("auth")->post("/contribute", [ContributeController::class,"submit"])->name("contribute");
+Route::get('/test-claude', [HomeController::class, 'testClaude']);
 Route::middleware("auth")->prefix("moderator")->group(function () {
     Route::get("/", [ModeratorController::class,"dashboard"])->name("moderator.dashboard");
     Route::post("/moderate/{contribution}", [ModeratorController::class,"moderate"])->name("moderator.moderate");
@@ -29,4 +31,12 @@ Route::middleware("auth")->prefix("admin")->group(function () {
     Route::delete("/content/{content}", [AdminController::class,"deleteContent"])->name("admin.content.delete");
     Route::get("/sections", [AdminController::class,"sections"])->name("admin.sections");
     Route::get("/subscribers", [AdminController::class,"subscribers"])->name("admin.subscribers");
+});
+
+
+Route::middleware('auth')->prefix('admin')->group(function () {
+    Route::get('/facebook', [FacebookController::class, 'index'])->name('admin.facebook');
+    Route::post('/facebook', [FacebookController::class, 'store'])->name('admin.facebook.store');
+    Route::post('/facebook/summarize', [FacebookController::class, 'summarize'])->name('admin.facebook.summarize');
+    Route::delete('/facebook/{post}', [FacebookController::class, 'destroy'])->name('admin.facebook.destroy');
 });
